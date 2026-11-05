@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#173b2f" />
+  <meta name="description" content="Bloom & Bond — a cozy 2D monster-girl RPG. Befriend chibi Bloomkin, watch them grow, and save Verdant Vale." />
+  <title>Bloom &amp; Bond — Monster Girl Tales</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B8%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./css/styles.css" />
+</head>
+<body>
+  <div id="app" aria-live="polite">
+
+    <!-- ───────────────────────── TITLE ───────────────────────── -->
+    <section id="title-screen" class="screen title-screen">
+      <div class="title-sky"></div>
+      <div class="title-sun"></div>
+      <div class="title-hills back"></div>
+      <div class="title-hills front"></div>
+      <div class="title-petals" id="title-petals" aria-hidden="true"></div>
+      <div class="title-content">
+        <p class="eyebrow">A cozy monster-girl adventure</p>
+        <h1 class="game-logo"><span>Bloom</span><em>&amp;</em><span>Bond</span></h1>
+        <p class="logo-sub">Monster Girl Tales</p>
+        <p class="title-blurb">Befriend tiny chibi Bloomkin. Watch them bloom into the girls they were always meant to become.</p>
+        <div class="title-actions">
+          <button id="btn-continue" class="btn primary big hidden">Continue Journey</button>
+          <button id="btn-new" class="btn primary big">New Journey</button>
+          <button id="btn-howto" class="btn ghost">How to Play</button>
+        </div>
+        <div class="title-starters" id="title-starters" aria-hidden="true"></div>
+      </div>
+      <p class="title-foot">Best played with sound · Touch &amp; keyboard · Your progress saves automatically</p>
+      <button id="btn-sound-title" class="icon-btn sound-btn" aria-label="Toggle sound">♪</button>
+    </section>
+
+    <!-- ───────────────────────── STARTER PICK ───────────────────────── -->
+    <section id="starter-screen" class="screen starter-screen hidden">
+      <div class="starter-bg"></div>
+      <header class="starter-head">
+        <p class="eyebrow">Professor Lila's Garden</p>
+        <h2>Choose your first Bloomkin</h2>
+        <p>She will start small and chibi. Raise her well, and at level 6 she'll bloom into a grown-up form.</p>
+      </header>
+      <div class="starter-grid" id="starter-grid"></div>
+      <div class="starter-foot">
+        <button id="btn-starter-back" class="btn ghost">Back</button>
+        <p class="hint">Tip: every Bloomkin is a girl — and every one of them grows up.</p>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── GAME ───────────────────────── -->
+    <section id="game-screen" class="screen game-screen hidden">
+      <canvas id="world" aria-label="Verdant Vale overworld"></canvas>
+      <div class="vignette" aria-hidden="true"></div>
+
+      <header class="hud-top">
+        <div class="hud-player">
+          <div class="hud-avatar" id="hud-avatar">✦</div>
+          <div>
+            <p class="hud-name">Wren <span class="hud-lv" id="hud-player-lv">Lv. 1</span></p>
+            <p class="hud-loc" id="hud-loc">Verdant Hollow</p>
+          </div>
+        </div>
+        <div class="hud-seals" id="hud-seals" aria-label="Bloom seals">
+          <span class="seal empty" data-seal="0">✿</span>
+          <span class="seal empty" data-seal="1">✿</span>
+          <span class="seal empty" data-seal="2">✿</span>
+        </div>
+        <div class="hud-buttons">
+          <button class="hud-btn" id="btn-party" aria-label="Open team"><span>☘</span><small>Team</small></button>
+          <button class="hud-btn" id="btn-bag" aria-label="Open bag"><span>◈</span><small>Bag</small></button>
+          <button class="hud-btn" id="btn-quest" aria-label="Open quest log"><span>✧</span><small>Quest</small></button>
+          <button class="hud-btn" id="btn-map" aria-label="Open map"><span>▦</span><small>Map</small></button>
+          <button class="hud-btn sound-hud" id="btn-sound" aria-label="Toggle sound"><span>♪</span><small>Sound</small></button>
+        </div>
+      </header>
+
+      <div class="quest-chip" id="quest-chip">
+        <span class="q-icon">✧</span>
+        <div>
+          <p class="q-title" id="quest-title">The Bloom Trials</p>
+          <p class="q-text" id="quest-text">Earn 3 Bloom Seals from the trial keepers.</p>
+        </div>
+      </div>
+
+      <div class="toasts" id="toasts"></div>
+
+      <div class="interact-prompt hidden" id="interact-prompt"><kbd>A</kbd><span id="interact-text">Talk</span></div>
+
+      <div class="touch-controls" id="touch-controls">
+        <div class="dpad" id="dpad" aria-label="Movement pad">
+          <button class="dp up" data-dir="up" aria-label="Up">▲</button>
+          <button class="dp left" data-dir="left" aria-label="Left">◀</button>
+          <div class="dp-center">✿</div>
+          <button class="dp right" data-dir="right" aria-label="Right">▶</button>
+          <button class="dp down" data-dir="down" aria-label="Down">▼</button>
+        </div>
+        <div class="action-pad">
+          <button class="action-btn small" id="btn-back" aria-label="Menu">☰</button>
+          <button class="action-btn a" id="btn-interact" aria-label="Interact">A</button>
+        </div>
+      </div>
+
+      <div class="dialogue hidden" id="dialogue">
+        <div class="dialogue-portrait" id="dialogue-portrait"></div>
+        <div class="dialogue-body">
+          <p class="dialogue-name" id="dialogue-name">Professor Lila</p>
+          <p class="dialogue-text" id="dialogue-text"></p>
+          <span class="dialogue-next" id="dialogue-next">▼</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── BATTLE ───────────────────────── -->
+    <section id="battle-screen" class="screen battle-screen hidden">
+      <div class="battle-scene">
+        <div class="battle-sky"></div>
+        <div class="battle-sun"></div>
+        <div class="battle-cloud c1"></div>
+        <div class="battle-cloud c2"></div>
+        <div class="battle-cloud c3"></div>
+        <div class="battle-hill far"></div>
+        <div class="battle-hill near"></div>
+        <div class="battle-ground">
+          <div class="battle-flower f1">✿</div><div class="battle-flower f2">✿</div>
+          <div class="battle-flower f3">✿</div><div class="battle-flower f4">✿</div>
+        </div>
+        <div class="battle-particles" id="battle-particles" aria-hidden="true"></div>
+        <div class="battle-platform enemy"></div>
+        <div class="battle-platform player"></div>
+        <div class="battle-mon enemy" id="enemy-mon">
+          <div class="mon-art" id="enemy-art"></div>
+          <div class="mon-shadow"></div>
+        </div>
+        <div class="battle-mon player" id="player-mon">
+          <div class="mon-art" id="player-art"></div>
+          <div class="mon-shadow"></div>
+        </div>
+
+        <div class="battle-info enemy" id="enemy-info">
+          <div class="bi-top"><span class="bi-name" id="enemy-name">Poppy</span><span class="bi-lv" id="enemy-lv">Lv. 3</span></div>
+          <div class="bi-types" id="enemy-types"></div>
+          <div class="hp-track"><div class="hp-fill" id="enemy-hp"></div></div>
+          <p class="hp-num" id="enemy-hp-num">28 / 28</p>
+        </div>
+        <div class="battle-info player" id="player-info">
+          <div class="bi-top"><span class="bi-name" id="battle-player-name">Nia</span><span class="bi-lv" id="battle-player-lv">Lv. 5</span></div>
+          <div class="bi-types" id="battle-player-types"></div>
+          <div class="hp-track"><div class="hp-fill" id="battle-player-hp"></div></div>
+          <p class="hp-num" id="battle-player-hp-num">40 / 40</p>
+          <div class="xp-track"><div class="xp-fill" id="battle-player-xp"></div></div>
+        </div>
+
+        <div class="battle-banner hidden" id="battle-banner"></div>
+        <div class="damage-layer" id="damage-layer"></div>
+      </div>
+
+      <div class="battle-ui">
+        <div class="battle-msg" id="battle-msg">What will Nia do?</div>
+        <div class="battle-actions" id="battle-actions"></div>
+        <div class="battle-tabs" id="battle-tabs">
+          <button class="btab active" data-tab="fight">Fight</button>
+          <button class="btab" data-tab="bag">Bag</button>
+          <button class="btab" data-tab="team">Team</button>
+          <button class="btab" data-tab="run">Run</button>
+        </div>
+        <button class="battle-log-toggle" id="battle-log-toggle" aria-label="Battle log">≡</button>
+      </div>
+      <div class="battle-log hidden" id="battle-log"></div>
+    </section>
+
+    <!-- ───────────────────────── EVOLUTION ───────────────────────── -->
+    <section id="evolution-screen" class="screen evolution-screen hidden">
+      <div class="evo-bg"></div>
+      <div class="evo-rays" aria-hidden="true"></div>
+      <div class="evo-sparkles" id="evo-sparkles" aria-hidden="true"></div>
+      <div class="evo-stage">
+        <div class="evo-figure old" id="evo-old"></div>
+        <div class="evo-figure new" id="evo-new"></div>
+        <div class="evo-silhouette" id="evo-silhouette"></div>
+      </div>
+      <div class="evo-copy">
+        <p class="eyebrow">A bond blooms</p>
+        <h2 id="evo-title">Nia is evolving!</h2>
+        <p id="evo-sub">She's growing into her true self…</p>
+      </div>
+      <button class="btn ghost evo-skip" id="evo-skip">Skip</button>
+    </section>
+
+    <!-- ───────────────────────── ENDING ───────────────────────── -->
+    <section id="ending-screen" class="screen ending-screen hidden">
+      <div class="ending-bg"></div>
+      <div class="ending-petals" id="ending-petals" aria-hidden="true"></div>
+      <div class="ending-card">
+        <p class="eyebrow">The vale is safe</p>
+        <h2>Bloom &amp; Bond</h2>
+        <p class="ending-lede" id="ending-lede">Queen Briar lowers her crown. Verdant Vale blooms brighter than ever.</p>
+        <div class="ending-team" id="ending-team"></div>
+        <div class="ending-stats" id="ending-stats"></div>
+        <p class="ending-note">Thank you for playing. Every bond you made is saved.</p>
+        <div class="ending-actions">
+          <button class="btn primary" id="btn-ending-continue">Keep Exploring</button>
+          <button class="btn ghost" id="btn-ending-title">Title Screen</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────────────────── OVERLAYS ───────────────────────── -->
+    <div class="modal-layer hidden" id="modal-layer">
+      <div class="modal" id="modal">
+        <header class="modal-head">
+          <h3 id="modal-title">Team</h3>
+          <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+        </header>
+        <div class="modal-body" id="modal-body"></div>
+        <footer class="modal-foot" id="modal-foot"></footer>
+      </div>
+    </div>
+
+    <div class="big-toast hidden" id="big-toast"></div>
+    <div class="transition hidden" id="transition"><div class="transition-flower">✿</div></div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
